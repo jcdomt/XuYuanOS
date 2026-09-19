@@ -74,8 +74,7 @@ exception_vector:
     .balign 128
     b serror_exception
 
-
-sync_exception:
+.macro EXCEPTION_ENTRY type
     /*
     uint64_t x[31];
 
@@ -120,9 +119,9 @@ sync_exception:
     mrs x0, ESR_EL1
     str x0, [sp, #16 * 15 + 32] // 272
 
-    mov x0, sp
-
-    bl exception_sync_handler
+    mov x0, #\type
+    mov x1, sp
+    bl exception_dispatch 
 
     ldp x0, x1, [sp, #16 * 0]
     ldp x2, x3, [sp, #16 * 1]
@@ -156,26 +155,32 @@ sync_exception:
 
     eret
 
+.endm
+
+
+sync_exception:
+   EXCEPTION_ENTRY 0
+
 1:
     wfe
     b 1b
 
 irq_exception:
-    bl exception_irq_handler
+    EXCEPTION_ENTRY 1
 
 1:
     wfe
     b 1b
 
 fiq_exception:
-    bl exception_fiq_handler
+    EXCEPTION_ENTRY 2
 
 1:
     wfe
     b 1b
 
 serror_exception:
-    bl exception_serror_handler
+    EXCEPTION_ENTRY 3
 
 1:
     wfe

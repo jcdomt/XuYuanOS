@@ -4,8 +4,43 @@
 #include <driver/uart/uart.h>
 #include <kernel/exception.h>
 
+enum class ExceptionType : uint64_t{
+    SYNC = 0,
+    IRQ = 1,
+    FIQ = 2,
+    SERROR = 3
+};
 
-extern "C" void exception_sync_handler(ExceptionContext *context) {
+extern "C" void exception_dispatch(ExceptionType type, ExceptionContext *context);
+void exception_sync_handler(ExceptionContext *context);
+void exception_irq_handler(ExceptionContext *context);
+void exception_fiq_handler(ExceptionContext *context);
+void exception_serror_handler(ExceptionContext *context);
+
+extern "C" void exception_dispatch(ExceptionType type, ExceptionContext *context)
+{
+    switch (type) {
+    case ExceptionType::SYNC:
+        exception_sync_handler(context);
+        break;
+    case ExceptionType::IRQ:
+        exception_irq_handler(context);
+        break;
+    case ExceptionType::FIQ:
+        exception_fiq_handler(context);
+        break;
+    case ExceptionType::SERROR:
+        exception_serror_handler(context);
+        break;
+    default:
+        uart_puts("Unknown exception type!\n");
+        while (true) {
+            asm volatile("wfe");
+        }
+    }
+}
+
+void exception_sync_handler(ExceptionContext *context) {
     uart_puts("Sync Exception!\n");
 
     uart_puts("ESR_EL1: ");
@@ -20,32 +55,25 @@ extern "C" void exception_sync_handler(ExceptionContext *context) {
     context->elr += 4;
 }
 
-extern "C" void exception_irq_handler()
+void exception_irq_handler(ExceptionContext *context)
 {
     uart_puts("IRQ Exception!\n");
 
-    while (true) {
-        asm volatile("wfe");
-    }
+    context->elr += 4;
 }
 
-
-extern "C" void exception_fiq_handler()
+void exception_fiq_handler(ExceptionContext *context)
 {
     uart_puts("FIQ Exception!\n");
 
-    while (true) {
-        asm volatile("wfe");
-    }
+    context->elr += 4;
 }
 
-extern "C" void exception_serror_handler()
+void exception_serror_handler(ExceptionContext *context)
 {
     uart_puts("SError Exception!\n");
 
-    while (true) {
-        asm volatile("wfe");
-    }
+    context->elr += 4;
 }
 
 #endif // __EXCEPTION_CPP__
