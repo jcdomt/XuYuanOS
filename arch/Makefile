@@ -1,7 +1,9 @@
+ARCH ?= arm64
+
 OBJS := $(wildcard *.o)
 
-# 子目录
-SUBDIRS := $(wildcard */)
+# 只构建当前架构
+SUBDIRS := $(ARCH)/
 
 .PHONY: all clean
 

@@ -2,11 +2,12 @@
 #define __UART_CPP__
 
 #include <driver/uart/uart.h>
+#include <board/qemu_virt.h>
 
 int uart_puts(const char *s)
 {
     volatile unsigned int *uart =
-        (volatile unsigned int *)0x09000000;
+        (volatile unsigned int *)PL011_BASE;
 
     while (*s) {
         *uart = *s++;
@@ -18,7 +19,7 @@ int uart_puts(const char *s)
 int uart_putc(char c)
 {
     volatile unsigned int *uart =
-        (volatile unsigned int *)0x09000000;
+        (volatile unsigned int *)PL011_BASE;
 
     *uart = c;
 

@@ -1,5 +1,8 @@
-SRCS := $(wildcard *.S)
-OBJS := $(SRCS:.S=.o)
+CPP_SRCS := $(wildcard *.cpp)
+ASM_SRCS := $(wildcard *.S)
+OBJS := \
+	$(CPP_SRCS:.cpp=.o) \
+	$(ASM_SRCS:.S=.o)
 
 # 子目录
 SUBDIRS := $(wildcard */)

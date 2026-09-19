@@ -1,3 +1,7 @@
+ARCH ?= arm64
+
+include arch/$(ARCH)/toolchain.mk
+
 CROSS_COMPILE ?= aarch64-linux-gnu-
 
 CC      := $(CROSS_COMPILE)gcc
@@ -18,7 +22,8 @@ CFLAGS := \
 	-O2 \
 	-Wall \
 	-Wextra \
-	-I$(TOP)/include
+	-I$(TOP)/include \
+	-I$(TOP)/arch/$(ARCH)/include
 
 ASFLAGS := \
 	-ffreestanding
@@ -28,6 +33,7 @@ LDFLAGS := \
 	-nostdlib
 
 export TOP
+export ARCH
 export CC CXX LD OBJCOPY
 export CFLAGS ASFLAGS
 
@@ -91,11 +97,6 @@ clean:
 # --------------------------------------------------
 
 run: kernel.elf
-	qemu-system-aarch64 \
-		-M virt \
-		-cpu cortex-a53 \
-		-m 512M \
-		-nographic \
-		-kernel kernel.elf
+	$(QEMU) $(QEMU_FLAGS) -kernel kernel.elf
 
 -include $(OBJS:.o=.d)
