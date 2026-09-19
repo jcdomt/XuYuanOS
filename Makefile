@@ -24,7 +24,7 @@ LDFLAGS := \
 	-T linker.ld \
 	-nostdlib
 
-OBJS := boot.o kernel.o
+OBJS := boot.o uart.o exception.o exception_cpp.o kernel.o
 
 .PHONY: all clean run
 
@@ -34,6 +34,15 @@ boot.o: boot.S
 	$(CC) $(ASFLAGS) -c $< -o $@
 
 kernel.o: kernel.cpp
+	$(CXX) $(CFLAGS) -c $< -o $@
+
+uart.o: uart.cpp
+	$(CXX) $(CFLAGS) -c $< -o $@
+
+exception.o: exception.S
+	$(CC) $(ASFLAGS) -c $< -o $@
+
+exception_cpp.o: exception.cpp
 	$(CXX) $(CFLAGS) -c $< -o $@
 
 kernel.elf: $(OBJS) linker.ld

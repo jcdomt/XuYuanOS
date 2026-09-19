@@ -1,14 +1,13 @@
+#include "uart.h"
+
 extern "C" void kernel_main()
 {
-    volatile unsigned int *uart =
-        (volatile unsigned int *)0x09000000;
+    uart_puts("Kernel Main!\n");
 
-    *uart = 'H';
-    *uart = 'e';
-    *uart = 'l';
-    *uart = 'l';
-    *uart = 'o';
-    *uart = '\n';
+    // 手动触发一个异常
+    asm volatile("brk #0");
+
+    uart_puts("This should not execute\n");
 
     while (true) {
         asm volatile("wfe");
