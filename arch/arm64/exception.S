@@ -76,7 +76,10 @@ exception_vector:
 
 
 sync_exception:
+    bl build_exception_context
     bl exception_sync_handler
+    bl restore_exception_context
+    eret
 
 1:
     wfe
@@ -102,3 +105,76 @@ serror_exception:
 1:
     wfe
     b 1b
+
+// 建立 ExceptionContext 结构体
+// 参考 include/kernel/exception.h
+build_exception_context:
+    /*
+    uint64_t x[31];
+
+    uint64_t sp;
+    uint64_t elr;
+    uint64_t spsr;
+    uint64_t esr;
+    */
+    sub sp, sp, #288
+
+    // 保存 x0-x30 寄存器
+    stp x0, x1, [sp, #16 * 0]
+    stp x2, x3, [sp, #16 * 1]
+    stp x4, x5, [sp, #16 * 2]
+    stp x6, x7, [sp, #16 * 3]
+    stp x8, x9, [sp, #16 * 4]
+    stp x10, x11, [sp, #16 * 5]
+    stp x12, x13, [sp, #16 * 6]
+    stp x14, x15, [sp, #16 * 7]
+    stp x16, x17, [sp, #16 * 8]
+    stp x18, x19, [sp, #16 * 9]
+    stp x20, x21, [sp, #16 * 10]
+    stp x22, x23, [sp, #16 * 11]
+    stp x24, x25, [sp, #16 * 12]
+    stp x26, x27, [sp, #16 * 13]
+    stp x28, x29, [sp, #16 * 14]
+    str x30, [sp, #16 * 15] // 240
+
+    // SP
+    add x0, sp, #288
+    str x0, [sp, #16 * 15 + 8] // 248
+
+    // ELR
+    mrs x0, ELR_EL1
+    str x0, [sp, #16 * 15 + 16] // 256
+
+    // SPSR
+    mrs x0, SPSR_EL1
+    str x0, [sp, #16 * 15 + 24] // 264
+
+    // ESR
+    mrs x0, ESR_EL1
+    str x0, [sp, #16 * 15 + 32] // 272
+
+    mov x0, sp
+    ret
+
+restore_exception_context:
+    ldp x0, x1, [sp, #16 * 0]
+    ldp x2, x3, [sp, #16 * 1]
+    ldp x4, x5, [sp, #16 * 2]
+    ldp x6, x7, [sp, #16 * 3]
+    ldp x8, x9, [sp, #16 * 4]
+    ldp x10, x11, [sp, #16 * 5]
+    ldp x12, x13, [sp, #16 * 6]
+    ldp x14, x15, [sp, #16 * 7]
+    ldp x16, x17, [sp, #16 * 8]
+    ldp x18, x19, [sp, #16 * 9]
+    ldp x20, x21, [sp, #16 * 10]
+    ldp x22, x23, [sp, #16 * 11]
+    ldp x24, x25, [sp, #16 * 12]
+    ldp x26, x27, [sp, #16 * 13]
+    ldp x28, x29, [sp, #16 * 14]
+    ldr x30, [sp, #16 * 15] // 240
+
+    // SP
+    add sp, sp, #288
+
+    ret

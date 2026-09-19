@@ -2,6 +2,7 @@
 #define __EXCEPTION_CPP__
 
 #include <driver/uart/uart.h>
+#include <kernel/exception.h>
 
 // 获取异常原因
 static inline unsigned long read_esr_el1() {
@@ -24,21 +25,21 @@ static inline unsigned long read_spsr_el1() {
     return value;
 }
 
-extern "C" void exception_sync_handler() {
+extern "C" void exception_sync_handler(ExceptionContext *context) {
     uart_puts("Sync Exception!\n");
 
-    unsigned long esr = read_esr_el1();
-    unsigned long elr = read_elr_el1();
-    unsigned long spsr = read_spsr_el1();
+    // unsigned long esr = read_esr_el1();
+    // unsigned long elr = read_elr_el1();
+    // unsigned long spsr = read_spsr_el1();
 
-    // 暂时只是为了让程序能编译
     uart_puts("ESR_EL1: ");
-    uart_puthex(esr);
+    uart_puthex(context->esr);
     uart_puts("\nELR_EL1: ");
-    uart_puthex(elr);
+    uart_puthex(context->elr);
     uart_puts("\nSPSR_EL1: ");
-    uart_puthex(spsr);
+    uart_puthex(context->spsr);
     uart_puts("\n");
+
 
     while (true) {
         asm volatile("wfe");
