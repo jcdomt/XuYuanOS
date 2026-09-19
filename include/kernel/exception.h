@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 
+
 struct ExceptionContext
 {
     uint64_t x[31];
@@ -13,3 +14,10 @@ struct ExceptionContext
 };
 // 31*8 + 8*4 = 248 + 32 = 280 bytes
 static_assert(sizeof(ExceptionContext) == 280);
+
+enum class ExceptionType : uint64_t{
+    SYNC = 0,
+    IRQ = 1,
+    FIQ = 2,
+    SERROR = 3
+};

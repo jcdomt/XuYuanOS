@@ -3,13 +3,7 @@
 
 #include <driver/uart/uart.h>
 #include <kernel/exception.h>
-
-enum class ExceptionType : uint64_t{
-    SYNC = 0,
-    IRQ = 1,
-    FIQ = 2,
-    SERROR = 3
-};
+#include <kernel/syscall.h>
 
 extern "C" void exception_dispatch(ExceptionType type, ExceptionContext *context);
 void exception_sync_handler(ExceptionContext *context);
@@ -34,22 +28,24 @@ extern "C" void exception_dispatch(ExceptionType type, ExceptionContext *context
         break;
     default:
         uart_puts("Unknown exception type!\n");
-        while (true) {
-            asm volatile("wfe");
-        }
+        context->elr += 4;
     }
 }
 
 void exception_sync_handler(ExceptionContext *context) {
     uart_puts("Sync Exception!\n");
 
-    uart_puts("ESR_EL1: ");
-    uart_puthex(context->esr);
-    uart_puts("\nELR_EL1: ");
-    uart_puthex(context->elr);
-    uart_puts("\nSPSR_EL1: ");
-    uart_puthex(context->spsr);
-    uart_puts("\n");
+    uint64_t ec = context->esr >> 26;
+    switch (ec) {
+        case 0x15:
+            syscall_handler(context);
+            break;
+        case 0x3C:
+            
+            break;
+        default:
+            uart_puts("Unknown sync exception!\n");
+    }
 
     // 手动修改异常返回地址，跳过异常指令
     context->elr += 4;
