@@ -40,10 +40,8 @@ extern "C" void exception_sync_handler(ExceptionContext *context) {
     uart_puthex(context->spsr);
     uart_puts("\n");
 
-
-    while (true) {
-        asm volatile("wfe");
-    }
+    // 手动修改异常返回地址，跳过异常指令
+    context->elr += 4;
 }
 
 extern "C" void exception_irq_handler()

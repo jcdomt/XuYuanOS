@@ -76,39 +76,6 @@ exception_vector:
 
 
 sync_exception:
-    bl build_exception_context
-    bl exception_sync_handler
-    bl restore_exception_context
-    eret
-
-1:
-    wfe
-    b 1b
-
-irq_exception:
-    bl exception_irq_handler
-
-1:
-    wfe
-    b 1b
-
-fiq_exception:
-    bl exception_fiq_handler
-
-1:
-    wfe
-    b 1b
-
-serror_exception:
-    bl exception_serror_handler
-
-1:
-    wfe
-    b 1b
-
-// 建立 ExceptionContext 结构体
-// 参考 include/kernel/exception.h
-build_exception_context:
     /*
     uint64_t x[31];
 
@@ -154,9 +121,9 @@ build_exception_context:
     str x0, [sp, #16 * 15 + 32] // 272
 
     mov x0, sp
-    ret
 
-restore_exception_context:
+    bl exception_sync_handler
+
     ldp x0, x1, [sp, #16 * 0]
     ldp x2, x3, [sp, #16 * 1]
     ldp x4, x5, [sp, #16 * 2]
@@ -171,10 +138,45 @@ restore_exception_context:
     ldp x22, x23, [sp, #16 * 11]
     ldp x24, x25, [sp, #16 * 12]
     ldp x26, x27, [sp, #16 * 13]
+
+    // 恢复 ELR
+    ldr x0, [sp, #16 * 15 + 16] // 256
+    msr ELR_EL1, x0
+
+    // 恢复 SPSR
+    ldr x0, [sp, #16 * 15 + 24] // 264
+    msr SPSR_EL1, x0
+
+
     ldp x28, x29, [sp, #16 * 14]
     ldr x30, [sp, #16 * 15] // 240
 
     // SP
     add sp, sp, #288
 
-    ret
+    eret
+
+1:
+    wfe
+    b 1b
+
+irq_exception:
+    bl exception_irq_handler
+
+1:
+    wfe
+    b 1b
+
+fiq_exception:
+    bl exception_fiq_handler
+
+1:
+    wfe
+    b 1b
+
+serror_exception:
+    bl exception_serror_handler
+
+1:
+    wfe
+    b 1b
