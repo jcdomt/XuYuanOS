@@ -1,7 +1,7 @@
 #ifndef __UART_CPP__
 #define __UART_CPP__
 
-#include "uart.h"
+#include <driver/uart/uart.h>
 
 int uart_puts(const char *s)
 {

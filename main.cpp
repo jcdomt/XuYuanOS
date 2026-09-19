@@ -1,4 +1,4 @@
-#include "uart.h"
+#include <driver/uart/uart.h>
 
 extern "C" void kernel_main()
 {

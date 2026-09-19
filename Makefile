@@ -5,6 +5,8 @@ CXX     := $(CROSS_COMPILE)g++
 LD      := $(CROSS_COMPILE)ld
 OBJCOPY := $(CROSS_COMPILE)objcopy
 
+TOP := $(CURDIR)
+
 CFLAGS := \
 	-ffreestanding \
 	-fno-builtin \
@@ -15,7 +17,8 @@ CFLAGS := \
 	-fno-rtti \
 	-O2 \
 	-Wall \
-	-Wextra
+	-Wextra \
+	-I$(TOP)/include
 
 ASFLAGS := \
 	-ffreestanding
@@ -24,35 +27,68 @@ LDFLAGS := \
 	-T linker.ld \
 	-nostdlib
 
-OBJS := boot.o uart.o exception.o exception_cpp.o kernel.o
+export TOP
+export CC CXX LD OBJCOPY
+export CFLAGS ASFLAGS
 
-.PHONY: all clean run
+# 当前目录中的源文件
+CPP_SRCS := $(wildcard *.cpp)
+ASM_SRCS := $(wildcard *.S)
+
+OBJS := \
+	$(CPP_SRCS:.cpp=.o) \
+	$(ASM_SRCS:.S=.o)
+
+# 自动发现所有包含 Makefile 的子目录
+SUBDIRS := $(dir $(wildcard */Makefile))
+
+.PHONY: all clean run $(SUBDIRS)
 
 all: kernel.elf kernel.bin
 
-boot.o: boot.S
+# --------------------------------------------------
+# 当前目录源码编译
+# --------------------------------------------------
+
+%.o: %.cpp
+	$(CXX) $(CFLAGS) -MMD -MP -c $< -o $@
+
+%.o: %.S
 	$(CC) $(ASFLAGS) -c $< -o $@
 
-kernel.o: kernel.cpp
-	$(CXX) $(CFLAGS) -c $< -o $@
+# --------------------------------------------------
+# 递归构建所有子目录
+# --------------------------------------------------
 
-uart.o: uart.cpp
-	$(CXX) $(CFLAGS) -c $< -o $@
+$(SUBDIRS):
+	$(MAKE) -C $@
 
-exception.o: exception.S
-	$(CC) $(ASFLAGS) -c $< -o $@
+# --------------------------------------------------
+# Kernel
+# --------------------------------------------------
 
-exception_cpp.o: exception.cpp
-	$(CXX) $(CFLAGS) -c $< -o $@
-
-kernel.elf: $(OBJS) linker.ld
-	$(LD) $(LDFLAGS) $(OBJS) -o $@
+kernel.elf: $(OBJS) $(SUBDIRS)
+	$(LD) $(LDFLAGS) \
+		$(OBJS) \
+		$(shell find . -mindepth 2 -name '*.o') \
+		-o $@
 
 kernel.bin: kernel.elf
 	$(OBJCOPY) -O binary $< $@
 
+# --------------------------------------------------
+# Clean
+# --------------------------------------------------
+
 clean:
-	rm -f *.o *.elf *.bin
+	rm -f $(OBJS) $(OBJS:.o=.d) *.elf *.bin
+	@for dir in $(SUBDIRS); do \
+		$(MAKE) -C $$dir clean; \
+	done
+
+# --------------------------------------------------
+# Run
+# --------------------------------------------------
 
 run: kernel.elf
 	qemu-system-aarch64 \
@@ -61,3 +97,5 @@ run: kernel.elf
 		-m 512M \
 		-nographic \
 		-kernel kernel.elf
+
+-include $(OBJS:.o=.d)

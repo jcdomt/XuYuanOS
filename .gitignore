@@ -1,3 +1,7 @@
 *.o
 *.bin
 *.elf
+
+compile_commands.json
+
+.cache

@@ -1,4 +1,7 @@
-#include "uart.h"
+#ifndef __EXCEPTION_CPP__
+#define __EXCEPTION_CPP__
+
+#include <driver/uart/uart.h>
 
 // 获取异常原因
 static inline unsigned long read_esr_el1() {
@@ -69,3 +72,5 @@ extern "C" void exception_serror_handler()
         asm volatile("wfe");
     }
 }
+
+#endif // __EXCEPTION_CPP__
