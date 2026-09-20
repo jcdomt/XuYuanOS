@@ -35,9 +35,23 @@ SECTIONS
         __bss_end = .;
     }
 
+    /* 内核栈空间 */
     . = ALIGN(4096);
 
     stack_bottom = .;
     . += 16384;
     stack_top = .;
+
+    /* 用户态程序 */
+    .user_text : ALIGN(4096)
+    {
+        __user_text_start = .;
+        *(.user_text*)
+        __user_text_end = .;
+    }
+
+    /* 用户栈空间 */
+    user_stack_bottom = .;
+    . += 16384;
+    user_stack_top = .;
 }

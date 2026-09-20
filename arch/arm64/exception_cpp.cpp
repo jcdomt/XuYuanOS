@@ -35,19 +35,20 @@ extern "C" void exception_dispatch(ExceptionType type, ExceptionContext *context
 
 static void sync_handler(ExceptionContext *context)
 {
-    exception_sync_handler();
+    exception_sync_handler(context);
 
     uint64_t ec = context->esr >> 26;
     switch (ec) {
-        case 0x15: // SVC (AArch64)
+        case 0x15: // SVC (AArch64): ELR 已指向 svc 的下一条指令，无需跳过
             arch_syscall_handler(context);
             break;
-        case 0x3C: // BRK (AArch64)
+        case 0x3C: // BRK (AArch64): ELR 指向 brk 指令本身，需跳过
+            context->elr += 4;
             break;
         default:
             uart_puts("Unknown sync exception!\n");
+            uart_puthex(context->elr);
+            uart_puts("\n");
+            context->elr += 4; // 跳过出错指令，避免死循环
     }
-
-    // 手动修改异常返回地址，跳过异常指令
-    context->elr += 4;
 }
