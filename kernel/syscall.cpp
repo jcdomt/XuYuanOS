@@ -13,6 +13,15 @@ int64_t syscall_dispatch(uint64_t nr, uint64_t arg0, uint64_t arg1, uint64_t arg
     CharDeviceDriver *out = CharDeviceDriver::Default();
 
     switch (static_cast<SyscallNumber>(nr)) {
+        case SyscallNumber::READ:
+        {
+            // arg0 是缓冲区地址，arg1 是长度
+            char *buffer = reinterpret_cast<char *>(arg0);
+            size_t length = static_cast<size_t>(arg1);
+            // 返回读取的字节数
+            return static_cast<int64_t>(out->read(buffer, length));
+        }
+
         case SyscallNumber::WRITE:
         {
             // arg0 是缓冲区地址，arg1 是长度

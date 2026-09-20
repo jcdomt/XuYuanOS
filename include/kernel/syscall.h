@@ -2,6 +2,7 @@
 #include <stdint.h>
 
 enum class SyscallNumber : uint64_t {
+    READ = 0,
     WRITE = 1,
 };
 

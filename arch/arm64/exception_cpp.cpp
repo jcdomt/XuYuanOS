@@ -28,7 +28,8 @@ extern "C" void exception_dispatch(ExceptionType type, ExceptionContext *context
         context->elr += 4;
         break;
     default:
-        ((CharDeviceDriver*)CharDeviceDriver::Class().GetDefault())->write("Unknown exception type!\n");        context->elr += 4;
+        ((CharDeviceDriver*)CharDeviceDriver::Class().GetDefault())->write("Unknown exception type!\n");
+        context->elr += 4;
     }
 }
 

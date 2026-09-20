@@ -9,19 +9,31 @@ user_test:
     mov x1, #user_message_len
     // 暂时假设 x2 = 0
     mov x2, #0
-
     // syscall number = write
     mov x8, #1
-
     svc #0
 
-    // syscall 返回值在 x0
-    mov x1, x0
+echo_loop:
+    // 读取一个字符到可写缓冲区
+    ldr x0, =user_buffer
+    mov x1, #1
+    // syscall number = read
+    mov x8, #0
+    svc #0
 
-1:
-    b 1b
+    // 将读到的内容重新输出
+    ldr x0, =user_buffer
+    mov x1, #1
+    // syscall number = write
+    mov x8, #1
+    svc #0
+    b echo_loop
 
 
 user_message:
-    .asciz "Hello from user mode!\n"
+    .ascii "Hello from user mode!\n"
 user_message_len = . - user_message
+
+.section .user_data, "aw"
+user_buffer:
+    .skip 64

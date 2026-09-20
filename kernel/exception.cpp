@@ -5,16 +5,16 @@
 
 void exception_sync_handler(ExceptionContext *ctx)
 {
-    CharDeviceDriver *out = CharDeviceDriver::Default();
+    // CharDeviceDriver *out = CharDeviceDriver::Default();
 
-    out->write("Sync Exception!\n");
+    // out->write("Sync Exception!\n");
 
-    out->write("Exception Class: ");
-    out->puthex(ctx->esr >> 26);
-    out->write("\n");
-    out->write("Instruction Specific Syndrome: ");
-    out->puthex(ctx->esr & 0xFFFFFF);
-    out->write("\n");
+    // out->write("Exception Class: ");
+    // out->puthex(ctx->esr >> 26);
+    // out->write("\n");
+    // out->write("Instruction Specific Syndrome: ");
+    // out->puthex(ctx->esr & 0xFFFFFF);
+    // out->write("\n");
 }
 
 void exception_irq_handler()

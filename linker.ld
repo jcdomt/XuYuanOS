@@ -69,6 +69,12 @@ SECTIONS
         __user_text_end = .;
     }
 
+    /* 用户态数据（可写） */
+    .user_data : ALIGN(4096)
+    {
+        *(.user_data*)
+    }
+
     /* 用户栈空间 */
     user_stack_bottom = .;
     . += 16384;

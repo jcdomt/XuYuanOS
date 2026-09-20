@@ -9,6 +9,18 @@ static inline void uart_raw_putc(char c)
     *uart = c;
 }
 
+static inline char uart_raw_getc()
+{
+    volatile unsigned int *uart =
+        (volatile unsigned int *)PL011_BASE;
+
+    // FR(0x18) bit4 = RXFE，为 1 表示接收 FIFO 为空，轮询等待输入
+    while (uart[0x18 / 4] & (1u << 4)) {
+    }
+
+    return (char)(*uart);
+}
+
 // 对 UartDriver
 int UartDriver::init()
 {
@@ -20,10 +32,10 @@ int UartDriver::init()
 
 size_t UartDriver::read(char* buffer, size_t size)
 {
-    // 这里暂时不实现读取功能
-    (void)buffer;
-    (void)size;
-    return 0;
+    for (size_t i = 0; i < size; ++i) {
+        buffer[i] = uart_raw_getc();
+    }
+    return size;
 }
 
 size_t UartDriver::write(const char* buffer, size_t size)
