@@ -2,18 +2,7 @@
 
 #include <stdint.h>
 
-
-struct ExceptionContext
-{
-    uint64_t x[31];
-
-    uint64_t sp;
-    uint64_t elr;
-    uint64_t spsr;
-    uint64_t esr;
-};
-// 31*8 + 8*4 = 248 + 32 = 280 bytes
-static_assert(sizeof(ExceptionContext) == 280);
+#include <arch/exception_context.h>
 
 enum class ExceptionType : uint64_t{
     SYNC = 0,
@@ -21,3 +10,9 @@ enum class ExceptionType : uint64_t{
     FIQ = 2,
     SERROR = 3
 };
+
+// 通用异常处理钩子，由 arch 层解码后调用
+void exception_sync_handler(ExceptionContext *);
+void exception_irq_handler();
+void exception_fiq_handler();
+void exception_serror_handler();
