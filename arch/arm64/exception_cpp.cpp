@@ -1,7 +1,7 @@
 #include <arch/exception_context.h>
 #include <kernel/exception.h>
 
-#include <driver/uart/uart.h>
+#include <driver/char_driver.h>
 
 void arch_syscall_handler(ExceptionContext *context);
 
@@ -28,8 +28,7 @@ extern "C" void exception_dispatch(ExceptionType type, ExceptionContext *context
         context->elr += 4;
         break;
     default:
-        uart_puts("Unknown exception type!\n");
-        context->elr += 4;
+        ((CharDeviceDriver*)CharDeviceDriver::Class().GetDefault())->write("Unknown exception type!\n");        context->elr += 4;
     }
 }
 
@@ -46,9 +45,9 @@ static void sync_handler(ExceptionContext *context)
             context->elr += 4;
             break;
         default:
-            uart_puts("Unknown sync exception!\n");
-            uart_puthex(context->elr);
-            uart_puts("\n");
+        CharDeviceDriver::Default()->write("Unknown sync exception!\n");
+        CharDeviceDriver::Default()->puthex(context->elr);
+        CharDeviceDriver::Default()->write("\n");
             context->elr += 4; // 跳过出错指令，避免死循环
     }
 }

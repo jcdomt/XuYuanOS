@@ -19,6 +19,7 @@ CFLAGS := \
 	-fno-asynchronous-unwind-tables \
 	-fno-exceptions \
 	-fno-rtti \
+	-mgeneral-regs-only \
 	-O2 \
 	-Wall \
 	-Wextra \

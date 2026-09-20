@@ -1,9 +1,13 @@
 #ifndef __UART_H__
 #define __UART_H__
 
-int uart_puts(const char *s);
-int uart_putc(char c);
+#include <driver/char_driver.h>
 
-int uart_puthex(unsigned long value);
+class UartDriver : public CharDeviceDriver {
+public:
+    int init() override;
+    size_t read(char* buffer, size_t size) override;
+    size_t write(const char* buffer, size_t size) override;
+};
 
 #endif // __UART_H__
