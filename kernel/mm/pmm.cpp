@@ -13,7 +13,7 @@ static uint64_t next_free_hint = 0; // 下一个空闲页的索引
 
 // 物理页帧分配器初始化
 // reserved_end 是内核保留内存的结束地址，物理页帧分配器不会分配保留内存中的页帧
-void mm::pmm_init(uint64_t mem_start, uint64_t mem_end, uint64_t reserved_end) {
+void mm::pmm::init(uint64_t mem_start, uint64_t mem_end, uint64_t reserved_end) {
     (void)mem_start;
 
     base_addr = (reserved_end + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1); // 对齐到页边界
@@ -27,13 +27,13 @@ void mm::pmm_init(uint64_t mem_start, uint64_t mem_end, uint64_t reserved_end) {
 
     // 标记保留内存范围内的页为已分配
     uint64_t bitmap_pages = CEIL_DIV(bitmap_size, PAGE_SIZE);
-for (uint64_t i = bitmap_pages; i < total_pages; ++i) {
-    BITMAP_CLEARBIT(bitmap, i);   // 其余页标为空闲
-}
+    for (uint64_t i = bitmap_pages; i < total_pages; ++i) {
+        BITMAP_CLEARBIT(bitmap, i);   // 其余页标为空闲
+    }
 }
 
 // 分配一个物理页帧，返回物理地址
-uint64_t mm::alloc_page() {
+uint64_t mm::pmm::alloc_page() {
     for (uint64_t i = next_free_hint; i < total_pages; ++i) {
         if (!BITMAP_TESTBIT(bitmap, i)) { // 如果该页是空闲的
             BITMAP_SETBIT(bitmap, i);
@@ -53,7 +53,7 @@ uint64_t mm::alloc_page() {
 }
 
 // 释放一个物理页帧
-void mm::free_page(uint64_t addr) {
+void mm::pmm::free_page(uint64_t addr) {
     if (addr < base_addr || addr >= base_addr + total_pages * PAGE_SIZE) {
         return; // 地址不在管理范围内，直接返回
     }
@@ -65,7 +65,7 @@ void mm::free_page(uint64_t addr) {
 }
 
 // 获取空闲页的数量
-uint64_t mm::free_page_count() {
+uint64_t mm::pmm::free_page_count() {
     uint64_t count = 0;
     for (uint64_t i = 0; i < total_pages; ++i) {
         if (!BITMAP_TESTBIT(bitmap, i)) {
