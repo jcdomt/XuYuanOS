@@ -6,7 +6,7 @@
 #include <kernel/usermode.h>
 
 int64_t jump_to_user_mode(uint64_t entry, uint64_t stack) {
-    arch_jump_to_user_mode(entry, stack);
+    arch::jump_to_user_mode(entry, stack);
 
     return 0;
 }

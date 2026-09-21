@@ -56,7 +56,7 @@ extern "C" void kernel_main()
                       reinterpret_cast<uint64_t>(user_stack_top));
 
     while (true) {
-        arch_wait_for_interrupt();
+        arch::wait_for_interrupt();
     }
 }
 
