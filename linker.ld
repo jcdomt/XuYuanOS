@@ -6,7 +6,12 @@ SECTIONS
         QEMU 会把内存映射到 0x40000000
         把内核放在 0x40080000 处，留出 8MB 的空间给 QEMU
     */
+    __mem_start = 0x40000000;
+
     . = 0x40080000;
+
+    /* 内核起始地址 */
+    __kernel_start = .; 
 
     .text : ALIGN(4096)
     {
@@ -79,4 +84,7 @@ SECTIONS
     user_stack_bottom = .;
     . += 16384;
     user_stack_top = .;
+
+    /* 内核结束地址 */
+    __kernel_end = .; 
 }
