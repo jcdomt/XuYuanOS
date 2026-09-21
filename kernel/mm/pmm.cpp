@@ -14,6 +14,8 @@ static uint64_t next_free_hint = 0; // 下一个空闲页的索引
 // 物理页帧分配器初始化
 // reserved_end 是内核保留内存的结束地址，物理页帧分配器不会分配保留内存中的页帧
 void mm::pmm_init(uint64_t mem_start, uint64_t mem_end, uint64_t reserved_end) {
+    (void)mem_start;
+
     base_addr = (reserved_end + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1); // 对齐到页边界
     total_pages = (mem_end - base_addr) / PAGE_SIZE;
 
