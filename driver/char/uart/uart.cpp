@@ -33,15 +33,23 @@ int UartDriver::init()
 size_t UartDriver::read(char* buffer, size_t size)
 {
     for (size_t i = 0; i < size; ++i) {
-        buffer[i] = uart_raw_getc();
+        char c = uart_raw_getc();
+        // 终端回车发的是 '\r'，统一转换为 '\n'
+        if (c == '\r')
+            c = '\n';
+        buffer[i] = c;
     }
     return size;
 }
 
 size_t UartDriver::write(const char* buffer, size_t size)
 {
-    for (size_t i = 0; i < size; ++i)
+    for (size_t i = 0; i < size; ++i) {
+        // 终端需要 '\r\n' 才能换行
+        if (buffer[i] == '\n')
+            uart_raw_putc('\r');
         uart_raw_putc(buffer[i]);
+    }
 
     return size;
 }
