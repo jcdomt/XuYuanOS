@@ -47,7 +47,7 @@ static void sync_handler(ExceptionContext *context)
             break;
         default:
         CharDeviceDriver::Default()->write("Unknown sync exception!\n");
-        CharDeviceDriver::Default()->puthex(context->elr);
+        CharDeviceDriver::Default()->puthex(ec);
         CharDeviceDriver::Default()->write("\n");
             context->elr += 4; // 跳过出错指令，避免死循环
     }

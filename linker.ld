@@ -81,9 +81,9 @@ SECTIONS
     }
 
     /* 用户栈空间 */
-    user_stack_bottom = .;
+    __user_stack_bottom = .;
     . += 16384;
-    user_stack_top = .;
+    __user_stack_top = .;
 
     /* 内核结束地址 */
     __kernel_end = .; 

@@ -1,0 +1,50 @@
+.global arch_mmu_enable
+arch_mmu_enable:
+    // x0 = 页表根物理地址
+
+    // 设置页表根寄存器
+    msr ttbr0_el1, x0
+    msr ttbr1_el1, x0
+    // 暂时两个槽位的页表都指向同一个根页表
+    isb
+
+    // MAIR
+    // 0 槽位：系统地址
+    // 1 槽位：设备地址
+    // MAIR: [Device][Normal]
+    ldr x1, =0x04FF
+    msr mair_el1, x1
+    isb
+
+    // TCR
+    // TCR: [T0SZ][T1SZ][TG0][TG1][SH0][SH1][ORGN0][ORGN1][IRGN0][IRGN1]
+    // 使用 4KB 页，4级页表，虚拟地址空间大小为 48 位
+    // T0SZ = 64 - 48 = 16
+    // T1SZ = 64 - 48 = 16
+    // TG0 = 00 (4KB)
+    // TG1 = 10 (4KB)
+    // SH0 = 11 (Inner Shareable)
+    // SH1 = 11 (Inner Shareable)
+    // ORGN0 = 01 (Write-Back Read-Allocate Write-Allocate Cacheable)
+    // ORGN1 = 01 (Write-Back Read-Allocate Write-Allocate Cacheable)
+    // IRGN0 = 01 (Write-Back Read-Allocate Write-Allocate Cacheable)
+    // IRGN1 = 01 (Write-Back Read-Allocate Write-Allocate Cacheable)
+    // TCR_EL1 = 0x2B5103510
+    ldr x1, =0x2B5103510
+    msr tcr_el1, x1
+    isb
+
+    dsb sy
+
+    // 开 MMU
+    mrs x1, sctlr_el1
+    orr x1, x1, #1  // 设置 M 位，启用
+    orr x1, x1, #(1 << 2)  // 设置 C 位，启用缓存
+    orr x1, x1, #(1 << 12) // 设置 I 位
+    msr sctlr_el1, x1
+    isb
+
+    mov x0, #0
+    ret
+
+.size arch_mmu_enable, . - arch_mmu_enable
