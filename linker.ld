@@ -66,25 +66,6 @@ SECTIONS
     . += 16384;
     stack_top = .;
 
-    /* 用户态程序 */
-    .user_text : ALIGN(4096)
-    {
-        __user_text_start = .;
-        *(.user_text*)
-        __user_text_end = .;
-    }
-
-    /* 用户态数据（可写） */
-    .user_data : ALIGN(4096)
-    {
-        *(.user_data*)
-    }
-
-    /* 用户栈空间 */
-    __user_stack_bottom = .;
-    . += 16384;
-    __user_stack_top = .;
-
     /* 内核结束地址 */
     __kernel_end = .; 
 }
