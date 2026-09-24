@@ -21,8 +21,5 @@ namespace mm {
         void map_page(uint64_t root, uint64_t virt_addr, uint64_t phys_addr, uint32_t flags);
         // 虚拟地址转换为物理地址
         uint64_t  virt_to_phys(uint64_t root, uint64_t virt_addr);
-
-        // 启动MMU
-        int enable_mmu(uint64_t root_table_phys_addr);
     }
 }

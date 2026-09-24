@@ -24,41 +24,15 @@ void test();
 
 extern "C" void kernel_main()
 {
-    // 先初始化内存管理器
-    extern char __mem_start[];
     extern char __kernel_start[];
     extern char __kernel_end[];
-    uint64_t mem_start = reinterpret_cast<uint64_t>(__mem_start);
+    uint64_t mem_start = reinterpret_cast<uint64_t>((uint64_t)MEM_START);
     uint64_t mem_end = mem_start + TOTAL_MEMORY_SIZE;
-    uint64_t kernel_start = reinterpret_cast<uint64_t>(__kernel_start);
+    // uint64_t kernel_start = reinterpret_cast<uint64_t>(__kernel_start);
     uint64_t kernel_end = reinterpret_cast<uint64_t>(__kernel_end);
-    extern char __user_text_start[];
-    extern char __user_text_end[];
-    uint64_t user_text_start = reinterpret_cast<uint64_t>(__user_text_start);
-    uint64_t user_text_end = reinterpret_cast<uint64_t>(__user_text_end);
-    extern char __user_stack_top[];
-    uint64_t user_stack_top = reinterpret_cast<uint64_t>(__user_stack_top);
 
-    mm::pmm::init(mem_start, mem_end, kernel_end);
-
-    // 初始化 MMU
-    uint64_t boot_root = mm::vmm::create_page_table();
-    // 恒等映射内核所在的物理内存区域
-   // 1. 内核区：内核权限
-    for (uint64_t pa = kernel_start & ~0xFFF; pa < user_text_start; pa += 0x1000)
-        mm::vmm::map_page(boot_root, pa, pa, VM_READ|VM_WRITE|VM_EXEC|VM_KERNEL);
-    // 2. 用户区：用户权限（text 可执行只读，data/栈可读写不可执行）
-    for (uint64_t pa = user_text_start; pa < user_text_end; pa += 0x1000)
-        mm::vmm::map_page(boot_root, pa, pa, VM_READ|VM_EXEC|VM_USER);
-    for (uint64_t pa = user_text_end; pa < (uint64_t)user_stack_top; pa += 0x1000)
-        mm::vmm::map_page(boot_root, pa, pa, VM_READ|VM_WRITE|VM_USER);
-    // 3. 其余物理内存（bitmap、页表）：内核权限
-    for (uint64_t pa = (uint64_t)user_stack_top; pa < mem_end; pa += 0x1000)
-        mm::vmm::map_page(boot_root, pa, pa, VM_READ|VM_WRITE|VM_KERNEL);
-    // 临时映射下 UART0 的 MMIO 寄存器，便于输出调试信息
-    mm::vmm::map_page(boot_root, PL011_BASE, PL011_BASE, VM_READ | VM_WRITE | VM_KERNEL | VM_DEVICE);
-    // 启用 MMU
-    mm::vmm::enable_mmu(boot_root);
+    // 先初始化内存管理器
+    mm::pmm::init(mem_start, mem_end, kernel_end - PHYS_OFFSET);
 
 
     // 初始化各个模块注册在 init_array 的全局构造函数
@@ -125,4 +99,8 @@ void test() {
     output_driver->puthex(r);   // 应为 0x400000001
     output_driver->write("\n");
 
+    int a = 1;
+    output_driver->write("In kernel, &a = ");
+    output_driver->puthex(reinterpret_cast<uint64_t>(&a));
+    output_driver->write("\n");
 }

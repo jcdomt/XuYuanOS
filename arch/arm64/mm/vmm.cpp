@@ -1,5 +1,7 @@
 #include <arch/vmm.h>
 
+#include <board/qemu_virt.h>
+
 #include <kernel/mm/pmm.h>
 #include <kernel/string.h>
 
@@ -14,7 +16,7 @@ struct PageTable {
 constexpr size_t PAGE_TABLE_SIZE = sizeof(PageTable);
 
 static PageTable *ptr(uint64_t phys_addr) {
-    return reinterpret_cast<PageTable *>(phys_addr);
+    return reinterpret_cast<PageTable *>(phys_addr + PHYS_OFFSET);
 }
 
 uint64_t arch::create_page_table() {
@@ -91,7 +93,7 @@ uint64_t arch::translate_flags(uint32_t vm_flags) {
     if (vm_flags & VM_USER) {
         attrs |= PTE_AP_USER; // 用户态可访问
         if (vm_flags & VM_EXEC) {
-            attrs |= PTE_UXN; // 用户态不可执行
+            attrs |= PTE_PXN; // 内核态不可执行，防止用户态代码被内核执行
         }
     } else {
         attrs &= ~PTE_AP_USER; // 内核态可访问

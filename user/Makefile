@@ -8,7 +8,10 @@ LDFLAGS := -T user.ld -nostdlib
 
 .PHONY: all clean
 
-all: $(USER_BIN) user_image.o
+# all: $(USER_BIN) user_image.o
+
+# 暂时不参与编译
+all: 
 
 # 1. 汇编 + 链接成独立 ELF
 $(USER_ELF): user.S user.ld
