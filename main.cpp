@@ -22,6 +22,8 @@ static void call_static_constructors()
 #define __USE_TEST__
 void test();
 
+#define U64 uint64_t
+
 extern "C" void kernel_main()
 {
     extern char __kernel_start[];
@@ -30,10 +32,38 @@ extern "C" void kernel_main()
     uint64_t mem_end = mem_start + TOTAL_MEMORY_SIZE;
     // uint64_t kernel_start = reinterpret_cast<uint64_t>(__kernel_start);
     uint64_t kernel_end = reinterpret_cast<uint64_t>(__kernel_end);
+    extern char __text_start[];
+    extern char __text_end[];
+    U64 text_start = reinterpret_cast<U64>(__text_start);
+    U64 text_end = reinterpret_cast<U64>(__text_end);
+    extern char __rodata_start[];
+    extern char __rodata_end[];
+    U64 rodata_start = reinterpret_cast<U64>(__rodata_start);
+    U64 rodata_end = reinterpret_cast<U64>(__rodata_end);
+    extern char __data_start[];
+    extern char __data_end[];
+    U64 data_start = reinterpret_cast<U64>(__data_start);
+    U64 data_end = reinterpret_cast<U64>(__data_end);
 
     // 先初始化内存管理器
     mm::pmm::init(mem_start, mem_end, kernel_end - PHYS_OFFSET);
 
+    // 建立内核 VMM 表
+    uint64_t kroot = mm::vmm::create_page_table();
+    for (uint64_t addr = mem_start; addr < mem_end; addr += 0x1000) {
+        mm::vmm::map_page(kroot, addr + PHYS_OFFSET, addr, VM_READ | VM_WRITE | VM_KERNEL);
+    }
+    auto map_sect = [&](uint64_t s, uint64_t e, uint32_t f) {
+        for (uint64_t addr = s; addr < e; addr += 0x1000) {
+            mm::vmm::map_page(kroot, addr, addr - PHYS_OFFSET, f);
+        }
+    };
+    map_sect(text_start, text_end, VM_READ | VM_WRITE | VM_KERNEL | VM_EXEC);
+    map_sect(rodata_start, rodata_end, VM_READ | VM_KERNEL);
+    map_sect(data_start, data_end, VM_READ | VM_WRITE | VM_KERNEL);
+    mm::vmm::map_page(kroot, PL011_BASE + PHYS_OFFSET, PL011_BASE, VM_READ | VM_WRITE | VM_KERNEL);
+    U64 uroot = mm::vmm::create_page_table();
+    arch::switch_page_tables(uroot, kroot);
 
     // 初始化各个模块注册在 init_array 的全局构造函数
     call_static_constructors();
@@ -104,3 +134,5 @@ void test() {
     output_driver->puthex(reinterpret_cast<uint64_t>(&a));
     output_driver->write("\n");
 }
+
+#undef U64

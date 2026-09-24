@@ -27,14 +27,20 @@ SECTIONS
 
     /* 代码实际放在 0x40084000，但是链接时认为它运行在 0xFFFF000040084000 */
     .text : AT(ADDR(.text) - KERNEL_VBASE) {
+        __text_start = .;
         *(.text*)
+        __text_end = .;
     }
     .rodata ALIGN(4096) : AT(ADDR(.rodata) - KERNEL_VBASE) {
+        __rodata_start = .;
         *(.rodata*)
         *(.data.rel.ro*)
+        __rodata_end = .;
     }
     .data ALIGN(4096) : AT(ADDR(.data) - KERNEL_VBASE) {
+        __data_start = .;
         *(.data*)
+        __data_end = .;
     }
     .init_array ALIGN(8) : AT(ADDR(.init_array) - KERNEL_VBASE) {
         __init_array_start = .;

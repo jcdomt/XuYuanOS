@@ -54,3 +54,17 @@ arch_enable_mmu:
     br x0
 
 .size arch_enable_mmu, . - arch_enable_mmu
+
+.section .text
+.global arch_switch_page_tables
+arch_switch_page_tables:
+    // x0 = 新的 TTBR0 根（空表）, x1 = 新的 TTBR1 根（内核表）
+    dsb sy
+    msr ttbr0_el1, x0
+    msr ttbr1_el1, x1
+    isb
+    tlbi vmalle1
+    dsb sy
+    isb
+    ret
+.size arch_switch_page_tables, . - arch_switch_page_tables

@@ -86,6 +86,8 @@ extern "C" __attribute__((noreturn,section(".boot.text"))) void boot_setup_mmu()
     // 低地址设备内存映射
     L2_DEVICE[idx(DEVICE_START, 2)] = DEVICE_START | DEVICE_BLOCK;
     L1_LOW[idx(DEVICE_START, 1)] = U64(L2_DEVICE) | TABLE_DESC;
+    // 顺便往高地址也映射一份，方便内核访问
+    L1_HIGH[idx(DEVICE_START, 1)] = U64(L2_DEVICE) | TABLE_DESC;
 
     // 高半内核内存映射
     // 对于高半地址 0xFFFF000040080000，L0=0, L1=1, L2=0

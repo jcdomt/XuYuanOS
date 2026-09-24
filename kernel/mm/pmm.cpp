@@ -1,6 +1,8 @@
 // 物理页帧分配器
 // 初版先使用 bitmap 来管理物理页帧的分配情况，后续可以考虑使用 buddy system 来优化内存分配效率
 
+#include <board/qemu_virt.h>
+
 #include <kernel/string.h>
 #include <kernel/utils/math.h>
 
@@ -20,7 +22,8 @@ void mm::pmm::init(uint64_t mem_start, uint64_t mem_end, uint64_t reserved_end) 
     total_pages = (mem_end - base_addr) / PAGE_SIZE;
 
     // bitmap 自身在内核空间的 最前端，直接标记为已分配
-    bitmap = reinterpret_cast<uint8_t *>(base_addr);
+    // 将内核bitmap表本身加载到高地址
+    bitmap = reinterpret_cast<uint8_t *>(base_addr + PHYS_OFFSET);
     // 计算 bitmap 所需的字节数
     uint64_t bitmap_size = CEIL_DIV(total_pages, 8); // 计算 bitmap 所需的字节数，+7 是为了向上取整
     memset(bitmap, 0xFF, bitmap_size); // 初始化为已分配

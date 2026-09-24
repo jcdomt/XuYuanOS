@@ -3,6 +3,7 @@
 #include <arch/exception_context.h>
 
 extern "C" void arch_jump_with_context(ExceptionContext *ctx);
+extern "C" void arch_switch_page_tables(uint64_t ttbr0, uint64_t ttbr1);
 
 namespace arch {
 
@@ -26,5 +27,12 @@ namespace arch {
         ctx.sp = user_stack;
         ctx.spsr = 0x0; // M[3:0]=0b0000 -> EL0t，DAIF 全部不屏蔽
         arch_jump_with_context(&ctx);
+    }
+
+    // 切换页表，ttbr0 和 ttbr1 分别是低地址和高地址的页表基址寄存器
+    static inline int switch_page_tables(uint64_t ttbr0, uint64_t ttbr1)
+    {
+        arch_switch_page_tables(ttbr0, ttbr1);
+        return 0;
     }
 }
