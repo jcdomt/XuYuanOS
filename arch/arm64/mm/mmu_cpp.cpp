@@ -68,7 +68,7 @@ namespace {
     #define L2_RAM_HIGH pmd_ram_high
     #undef __BOOT_DATA
 
-    constexpr U64 idx(U64 addr, U64 level) {
+    static inline __attribute__((always_inline)) U64 idx(U64 addr, U64 level) {
         return (addr >> (39 - level * 9)) & 0x1FF;
     }
 
