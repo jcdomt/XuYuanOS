@@ -6,7 +6,7 @@
 
 #include <driver/driver.h>
 #include <driver/char_driver.h>
-#include <kernel/usermode.h>
+#include <kernel/loader.h>
 
 // 链接脚本导出的 C++ 全局构造函数表
 typedef void (*InitFunc)();
@@ -76,15 +76,11 @@ extern "C" void kernel_main()
 
     test();
 
-    // 链接脚本符号必须用其地址（声明为数组可避免误用）
-    // extern char __user_text_start[];
-    // extern char user_stack_top[];
-    // output_driver->write("Jump to user mode...\n");
-    // output_driver->write("User text start: ");
-    // output_driver->puthex(reinterpret_cast<unsigned long>(__user_text_start));
-    // output_driver->write("\n");
-    // jump_to_user_mode(reinterpret_cast<uint64_t>(__user_text_start),
-    //                   reinterpret_cast<uint64_t>(user_stack_top));
+    extern char __user_image_start[];
+    extern char __user_image_end[];
+    uint64_t user_image_start = reinterpret_cast<uint64_t>(__user_image_start);
+    uint64_t user_image_end = reinterpret_cast<uint64_t>(__user_image_end);
+    load_and_enter_user(user_image_start, user_image_end);
 
     while (true) {
         arch::wait_for_interrupt();

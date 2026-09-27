@@ -35,6 +35,8 @@ SECTIONS
         __rodata_start = .;
         *(.rodata*)
         *(.data.rel.ro*)
+        /* 临时放入用户态二进制，用于给加载器加载 */
+        *(.user_image)
         __rodata_end = .;
     }
     .data ALIGN(4096) : AT(ADDR(.data) - KERNEL_VBASE) {

@@ -44,7 +44,8 @@ CFLAGS := \
 	-I$(TOP)/arch/$(ARCH)/include
 
 ASFLAGS := \
-	-ffreestanding
+	-ffreestanding \
+	$(DEBUG_FLAGS)
 
 LDFLAGS := \
 	-T linker.ld \

@@ -4,6 +4,7 @@
 
 extern "C" void arch_jump_with_context(ExceptionContext *ctx);
 extern "C" void arch_switch_page_tables(uint64_t ttbr0, uint64_t ttbr1);
+extern "C" void arch_enter_user_mode(uint64_t ttbr0, uint64_t entry, uint64_t sp);
 
 namespace arch {
 
@@ -34,5 +35,11 @@ namespace arch {
     {
         arch_switch_page_tables(ttbr0, ttbr1);
         return 0;
+    }
+
+    // 切换到用户态，使用指定的页表和入口点
+    static inline void enter_user_mode(uint64_t ttbr0, uint64_t entry, uint64_t sp)
+    {
+        arch_enter_user_mode(ttbr0, entry, sp);
     }
 }

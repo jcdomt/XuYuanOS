@@ -9,6 +9,10 @@ extern "C" void exception_dispatch(ExceptionType type, ExceptionContext *context
 
 static void sync_handler(ExceptionContext *context);
 
+static inline uint64_t read_far_el1() {
+    uint64_t v; asm volatile("mrs %0, far_el1" : "=r"(v)); return v;
+}
+
 extern "C" void exception_dispatch(ExceptionType type, ExceptionContext *context)
 {
     switch (type) {
@@ -45,10 +49,16 @@ static void sync_handler(ExceptionContext *context)
         case 0x3C: // BRK (AArch64): ELR 指向 brk 指令本身，需跳过
             context->elr += 4;
             break;
-        default:
-        CharDeviceDriver::Default()->write("Unknown sync exception!\n");
-        CharDeviceDriver::Default()->puthex(ec);
-        CharDeviceDriver::Default()->write("\n");
-            context->elr += 4; // 跳过出错指令，避免死循环
+        default: {
+            uint64_t far = read_far_el1();
+            CharDeviceDriver::Default()->write("Unknown sync exception! EC=");
+            CharDeviceDriver::Default()->puthex(ec);
+            CharDeviceDriver::Default()->write(" ELR=");
+            CharDeviceDriver::Default()->puthex(context->elr);
+            CharDeviceDriver::Default()->write(" FAR=");
+            CharDeviceDriver::Default()->puthex(far);
+            CharDeviceDriver::Default()->write("\n");
+            context->elr += 4;
+        }
     }
 }
