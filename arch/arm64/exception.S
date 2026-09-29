@@ -150,6 +150,9 @@ exception_vector:
     ldp x28, x29, [sp, #16 * 14]
     ldr x30, [sp, #16 * 15] // 240
 
+    // 还原被一直当做中间变量的 x0
+    ldr x0, [sp, #16 * 15 + 32] // 272
+
     // SP
     add sp, sp, #288
 
