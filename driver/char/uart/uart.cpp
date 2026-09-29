@@ -1,19 +1,15 @@
 #include <driver/uart/uart.h>
 #include <board/qemu_virt.h>
 
+volatile unsigned int *uart = (volatile unsigned int *)(PL011_BASE + PHYS_OFFSET);
+
 static inline void uart_raw_putc(char c)
 {
-    volatile unsigned int *uart =
-        (volatile unsigned int *)PL011_BASE;
-
     *uart = c;
 }
 
 static inline char uart_raw_getc()
 {
-    volatile unsigned int *uart =
-        (volatile unsigned int *)PL011_BASE;
-
     // FR(0x18) bit4 = RXFE，为 1 表示接收 FIFO 为空，轮询等待输入
     while (uart[0x18 / 4] & (1u << 4)) {
     }

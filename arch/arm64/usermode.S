@@ -38,3 +38,16 @@ arch_jump_with_context:
     eret
 
 .size arch_jump_with_context, . - arch_jump_with_context
+
+.global arch_enter_user_mode
+.type arch_enter_user_mode, %function
+arch_enter_user_mode:
+    // x0 = 用户页表根(TTBR0), x1 = 入口 VA, x2 = 用户栈顶 VA
+    msr ttbr0_el1, x0
+    tlbi vmalle1
+    dsb sy
+    isb
+    msr elr_el1, x1
+    msr spsr_el1, xzr
+    msr sp_el0, x2
+    eret

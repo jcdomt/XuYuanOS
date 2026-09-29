@@ -5,6 +5,7 @@
 
 void exception_sync_handler(ExceptionContext *ctx)
 {
+    (void)ctx;
     // CharDeviceDriver *out = CharDeviceDriver::Default();
 
     // out->write("Sync Exception!\n");

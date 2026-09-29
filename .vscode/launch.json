@@ -1,0 +1,29 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "XuYuanOS Debug",
+            "type": "cppdbg",
+            "request": "launch",
+
+            "program": "${workspaceFolder}/kernel.elf",
+            "cwd": "${workspaceFolder}",
+
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb-multiarch",
+            "miDebuggerServerAddress": "127.0.0.1:1234",
+
+            "targetArchitecture": "arm64",
+
+            "stopAtEntry": true,
+
+            "setupCommands": [
+                {
+                    "description": "Set AArch64",
+                    "text": "set architecture aarch64",
+                    "ignoreFailures": false
+                }
+            ]
+        }
+    ]
+}
