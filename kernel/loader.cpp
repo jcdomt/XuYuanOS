@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 
-#include <kernel/string.h>
+#include <string.h>
 #include <kernel/mm/pmm.h>
 #include <kernel/mm/vmm.h>
 

@@ -3,8 +3,8 @@
 
 #include <board/qemu_virt.h>
 
-#include <kernel/string.h>
-#include <kernel/utils/math.h>
+#include <utils/string.h>
+#include <utils/math.h>
 
 #include <kernel/mm/pmm.h>
 

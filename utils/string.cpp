@@ -1,4 +1,4 @@
-#include <kernel/string.h>
+#include <utils/string.h>
 
 // freestanding 环境下编译器仍可能生成 memset/memcpy 调用，需自行提供
 
