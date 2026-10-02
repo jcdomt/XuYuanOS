@@ -5,6 +5,12 @@
 #include <kernel/mm/vmm.h>
 #include <kernel/mm/pmm.h>
 
+uint64_t mm::vmm::g_kroot = 0;
+
+void mm::vmm::set_global_kroot(uint64_t kroot) {
+    g_kroot = kroot;
+}
+
 uint64_t mm::vmm::create_page_table() {
     return arch::create_page_table();
 }

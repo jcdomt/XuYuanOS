@@ -3,6 +3,7 @@
 
 #include <kernel/mm/pmm.h>
 #include <kernel/mm/vmm.h>
+#include <kernel/mm/kheap.h>
 
 #include <driver/driver.h>
 #include <driver/char_driver.h>
@@ -64,6 +65,10 @@ extern "C" void kernel_main()
     mm::vmm::map_page(kroot, PL011_BASE + PHYS_OFFSET, PL011_BASE, VM_READ | VM_WRITE | VM_KERNEL);
     U64 uroot = mm::vmm::create_page_table();
     arch::switch_page_tables(uroot, kroot);
+    mm::vmm::set_global_kroot(kroot);
+
+    // 激活内核堆 kheap
+    mm::kheap::init();
 
     // 初始化各个模块注册在 init_array 的全局构造函数
     call_static_constructors();

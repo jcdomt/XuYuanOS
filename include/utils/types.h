@@ -9,3 +9,6 @@
 #define S32 int32_t
 #define S16 int16_t
 #define S8 int8_t
+
+#include <cstddef>
+#define size_t std::size_t

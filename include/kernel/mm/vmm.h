@@ -18,6 +18,10 @@ enum VmFlags : uint32_t {
 
 namespace mm {
     namespace vmm {
+        extern uint64_t g_kroot; // 内核页表根地址
+        void  set_global_kroot(uint64_t kroot);
+
+
         // 创建新的页表
         uint64_t create_page_table();
         // 映射虚拟地址到物理地址
