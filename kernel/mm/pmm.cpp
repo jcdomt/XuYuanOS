@@ -7,6 +7,8 @@
 #include <utils/math.h>
 
 #include <kernel/mm/pmm.h>
+#include <kernel/mm/mm.h>
+using namespace mm;
 
 static uint8_t *bitmap = nullptr; // 位图，1 表示已分配，0 表示空闲
 static uint64_t total_pages = 0; // 总页数

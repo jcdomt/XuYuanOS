@@ -8,11 +8,9 @@
 #include <string.h>
 #include <kernel/mm/pmm.h>
 #include <kernel/mm/vmm.h>
+#include <kernel/process/loader.h>
 
 #define U64 uint64_t
-
-constexpr U64 USER_BASE = 0x40000000;   // 用户态程序加载基址
-constexpr U64 USER_STACK_TOP = 0x80000000;   // 用户态程序栈顶地址
 
 int load_and_enter_user(U64 user_image_start, U64 user_image_end)
 {

@@ -13,6 +13,9 @@ enum VmFlags : uint32_t {
     VM_DEVICE = 1 << 5, // MMIO 设备内存
 };
 
+#define _4KB 0x1000
+
+
 namespace mm {
     namespace vmm {
         // 创建新的页表
@@ -21,5 +24,8 @@ namespace mm {
         void map_page(uint64_t root, uint64_t virt_addr, uint64_t phys_addr, uint32_t flags);
         // 虚拟地址转换为物理地址
         uint64_t  virt_to_phys(uint64_t root, uint64_t virt_addr);
+
+        // 创建一段虚拟内存，返回一份这段内存的页表
+        uint64_t alloc_virt_memory(uint64_t start, uint64_t size, uint32_t flags);
     }
 }

@@ -6,7 +6,7 @@
 
 #include <driver/driver.h>
 #include <driver/char_driver.h>
-#include <kernel/loader.h>
+#include <kernel/process/process.h>
 
 // 链接脚本导出的 C++ 全局构造函数表
 typedef void (*InitFunc)();
@@ -80,7 +80,13 @@ extern "C" void kernel_main()
     extern char __user_image_end[];
     uint64_t user_image_start = reinterpret_cast<uint64_t>(__user_image_start);
     uint64_t user_image_end = reinterpret_cast<uint64_t>(__user_image_end);
-    load_and_enter_user(user_image_start, user_image_end);
+    // load_and_enter_user(user_image_start, user_image_end);
+    Process *proc = Process::create_process();
+    proc->set_format_type(PROCESS_FORMAT_BIN);
+    if (!proc->load(user_image_start, user_image_end)) {
+        output_driver->write("Failed to load user process!\n");
+    }
+    proc->start();
 
     while (true) {
         arch::wait_for_interrupt();

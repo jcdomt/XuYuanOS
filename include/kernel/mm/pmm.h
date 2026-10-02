@@ -4,8 +4,6 @@
 
 namespace mm {
     namespace pmm {
-        constexpr uint64_t PAGE_SIZE = 4096; // 4KB
-
         void init(uint64_t mem_start, uint64_t mem_end, uint64_t reserved_end);
         
         uint64_t alloc_page();
